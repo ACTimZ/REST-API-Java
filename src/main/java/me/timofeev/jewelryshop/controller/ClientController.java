@@ -1,7 +1,10 @@
 package me.timofeev.jewelryshop.controller;
 
+import me.timofeev.jewelryshop.entity.Cheque;
 import me.timofeev.jewelryshop.entity.Client;
+import me.timofeev.jewelryshop.repo.ChequeRepository;
 import me.timofeev.jewelryshop.repo.ClientRepository;
+import me.timofeev.jewelryshop.repo.ChequeRepository;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -10,9 +13,11 @@ import java.util.List;
 @RequestMapping("/clients")
 public class ClientController {
     private final ClientRepository clientRepository;
+    private final ChequeRepository chequeRepository;
 
-    public ClientController(ClientRepository clientRepository) {
+    public ClientController(ClientRepository clientRepository, ChequeRepository chequeRepository) {
         this.clientRepository = clientRepository;
+        this.chequeRepository = chequeRepository;
     }
 
     @GetMapping
@@ -36,7 +41,15 @@ public class ClientController {
                 .map(client -> {
                     client.setFirstName(updatedClient.getFirstName());
                     client.setLastName(updatedClient.getLastName());
-                    client.setContactInfo(updatedClient.getContactInfo());
+
+                    if (client.getContactInfo() != null && updatedClient.getContactInfo() != null) {
+                        client.getContactInfo().setPhone(updatedClient.getContactInfo().getPhone());
+                        client.getContactInfo().setEmail(updatedClient.getContactInfo().getEmail());
+                        client.getContactInfo().setAddress(updatedClient.getContactInfo().getAddress());
+                    } else if (updatedClient.getContactInfo() != null) {
+                        client.setContactInfo(updatedClient.getContactInfo());
+                    }
+
                     return clientRepository.save(client);
                 })
                 .orElse(null);
@@ -44,6 +57,14 @@ public class ClientController {
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
-        clientRepository.deleteById(id);
+        clientRepository.findById(id).ifPresent(client -> {
+            List<Cheque> cheques = chequeRepository.findAll();
+            for (Cheque cheque : cheques) {
+                if (cheque.getClient() != null && cheque.getClient().getId().equals(id)) {
+                    chequeRepository.deleteById(cheque.getId());
+                }
+            }
+            clientRepository.deleteById(id);
+        });
     }
 }

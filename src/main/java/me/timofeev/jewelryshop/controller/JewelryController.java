@@ -1,7 +1,9 @@
 package me.timofeev.jewelryshop.controller;
 
+import me.timofeev.jewelryshop.entity.Cheque;
 import me.timofeev.jewelryshop.entity.Jewelry;
 import me.timofeev.jewelryshop.repo.JewelryRepository;
+import me.timofeev.jewelryshop.repo.ChequeRepository;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -10,9 +12,11 @@ import java.util.List;
 @RequestMapping("/jewelry")
 public class JewelryController {
     private final JewelryRepository jewelryRepository;
+    private final ChequeRepository chequeRepository;
 
-    public JewelryController(JewelryRepository jewelryRepository) {
+    public JewelryController(JewelryRepository jewelryRepository, ChequeRepository chequeRepository) {
         this.jewelryRepository = jewelryRepository;
+        this.chequeRepository = chequeRepository;
     }
 
     @GetMapping
@@ -47,6 +51,14 @@ public class JewelryController {
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
-        jewelryRepository.deleteById(id);
+        jewelryRepository.findById(id).ifPresent(jewelry -> {
+            List<Cheque> cheques = chequeRepository.findAll();
+            for (Cheque cheque : cheques) {
+                if (cheque.getJewelry() != null && cheque.getJewelry().getId().equals(id)) {
+                    chequeRepository.deleteById(cheque.getId());
+                }
+            }
+            jewelryRepository.deleteById(id);
+        });
     }
 }
