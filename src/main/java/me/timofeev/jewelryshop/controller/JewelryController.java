@@ -7,6 +7,7 @@ import me.timofeev.jewelryshop.repo.ChequeRepository;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/jewelry")
@@ -36,17 +37,19 @@ public class JewelryController {
 
     @PutMapping("/{id}")
     public Jewelry update(@PathVariable Long id, @RequestBody Jewelry updatedJewelry) {
-        return jewelryRepository.findById(id)
-                .map(jewelry -> {
-                    jewelry.setName(updatedJewelry.getName());
-                    jewelry.setType(updatedJewelry.getType());
-                    jewelry.setMaterial(updatedJewelry.getMaterial());
-                    jewelry.setAssay(updatedJewelry.getAssay());
-                    jewelry.setPrice(updatedJewelry.getPrice());
-                    jewelry.setDescription(updatedJewelry.getDescription());
-                    return jewelryRepository.save(jewelry);
-                })
-                .orElse(null);
+        Optional<Jewelry> optionalJewelry = jewelryRepository.findById(id);
+
+        optionalJewelry.ifPresent(jewelry -> {
+            jewelry.setName(updatedJewelry.getName());
+            jewelry.setType(updatedJewelry.getType());
+            jewelry.setMaterial(updatedJewelry.getMaterial());
+            jewelry.setAssay(updatedJewelry.getAssay());
+            jewelry.setPrice(updatedJewelry.getPrice());
+            jewelry.setDescription(updatedJewelry.getDescription());
+            jewelryRepository.save(jewelry);
+        });
+
+        return optionalJewelry.orElse(null);
     }
 
     @DeleteMapping("/{id}")

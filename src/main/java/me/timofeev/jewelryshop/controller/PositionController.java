@@ -5,6 +5,7 @@ import me.timofeev.jewelryshop.repo.PositionRepository;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/positions")
@@ -32,12 +33,14 @@ public class PositionController {
 
     @PutMapping("/{id}")
     public Position update(@PathVariable Long id, @RequestBody Position updatedPosition) {
-        return positionRepository.findById(id)
-                .map(position -> {
-                    position.setName(updatedPosition.getName());
-                    return positionRepository.save(position);
-                })
-                .orElse(null);
+        Optional<Position> optionalPosition = positionRepository.findById(id);
+
+        optionalPosition.ifPresent(position -> {
+            position.setName(updatedPosition.getName());
+            positionRepository.save(position);
+        });
+
+        return optionalPosition.orElse(null);
     }
 
     @DeleteMapping("/{id}")

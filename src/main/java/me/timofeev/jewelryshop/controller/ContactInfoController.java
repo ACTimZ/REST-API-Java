@@ -5,6 +5,7 @@ import me.timofeev.jewelryshop.repo.ContactInfoRepository;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/contactinfo")
@@ -32,14 +33,16 @@ public class ContactInfoController {
 
     @PutMapping("/{id}")
     public ContactInfo update(@PathVariable Long id, @RequestBody ContactInfo updatedContactInfo) {
-        return contactInfoRepository.findById(id)
-                .map(contactInfo -> {
-                    contactInfo.setPhone(updatedContactInfo.getPhone());
-                    contactInfo.setEmail(updatedContactInfo.getEmail());
-                    contactInfo.setAddress(updatedContactInfo.getAddress());
-                    return contactInfoRepository.save(contactInfo);
-                })
-                .orElse(null);
+        Optional<ContactInfo> optionalContactInfo = contactInfoRepository.findById(id);
+
+        optionalContactInfo.ifPresent(contactInfo -> {
+            contactInfo.setPhone(updatedContactInfo.getPhone());
+            contactInfo.setEmail(updatedContactInfo.getEmail());
+            contactInfo.setAddress(updatedContactInfo.getAddress());
+            contactInfoRepository.save(contactInfo);
+        });
+
+        return optionalContactInfo.orElse(null);
     }
 
     @DeleteMapping("/{id}")

@@ -4,9 +4,9 @@ import me.timofeev.jewelryshop.entity.Cheque;
 import me.timofeev.jewelryshop.entity.Client;
 import me.timofeev.jewelryshop.repo.ChequeRepository;
 import me.timofeev.jewelryshop.repo.ClientRepository;
-import me.timofeev.jewelryshop.repo.ChequeRepository;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
 import java.util.List;
 
 @RestController
@@ -37,22 +37,24 @@ public class ClientController {
 
     @PutMapping("/{id}")
     public Client update(@PathVariable Long id, @RequestBody Client updatedClient) {
-        return clientRepository.findById(id)
-                .map(client -> {
-                    client.setFirstName(updatedClient.getFirstName());
-                    client.setLastName(updatedClient.getLastName());
+        Optional<Client> optionalClient = clientRepository.findById(id);
 
-                    if (client.getContactInfo() != null && updatedClient.getContactInfo() != null) {
-                        client.getContactInfo().setPhone(updatedClient.getContactInfo().getPhone());
-                        client.getContactInfo().setEmail(updatedClient.getContactInfo().getEmail());
-                        client.getContactInfo().setAddress(updatedClient.getContactInfo().getAddress());
-                    } else if (updatedClient.getContactInfo() != null) {
-                        client.setContactInfo(updatedClient.getContactInfo());
-                    }
+        optionalClient.ifPresent(client -> {
+            client.setFirstName(updatedClient.getFirstName());
+            client.setLastName(updatedClient.getLastName());
 
-                    return clientRepository.save(client);
-                })
-                .orElse(null);
+            if (client.getContactInfo() != null && updatedClient.getContactInfo() != null) {
+                client.getContactInfo().setPhone(updatedClient.getContactInfo().getPhone());
+                client.getContactInfo().setEmail(updatedClient.getContactInfo().getEmail());
+                client.getContactInfo().setAddress(updatedClient.getContactInfo().getAddress());
+            } else if (updatedClient.getContactInfo() != null) {
+                client.setContactInfo(updatedClient.getContactInfo());
+            }
+
+            clientRepository.save(client);
+        });
+
+        return optionalClient.orElse(null);
     }
 
     @DeleteMapping("/{id}")

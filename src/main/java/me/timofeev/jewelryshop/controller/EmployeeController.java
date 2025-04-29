@@ -43,28 +43,33 @@ public class EmployeeController {
 
     @PutMapping("/{id}")
     public Employee update(@PathVariable Long id, @RequestBody Employee updatedEmployee) {
-        return employeeRepository.findById(id)
-                .map(employee -> {
-                    employee.setFirstName(updatedEmployee.getFirstName());
-                    employee.setLastName(updatedEmployee.getLastName());
+        Optional<Employee> optionalEmployee = employeeRepository.findById(id);
 
-                    if (employee.getContactInfo() != null && updatedEmployee.getContactInfo() != null) {
-                        employee.getContactInfo().setPhone(updatedEmployee.getContactInfo().getPhone());
-                        employee.getContactInfo().setEmail(updatedEmployee.getContactInfo().getEmail());
-                        employee.getContactInfo().setAddress(updatedEmployee.getContactInfo().getAddress());
-                    } else if (updatedEmployee.getContactInfo() != null) {
-                        employee.setContactInfo(updatedEmployee.getContactInfo());
-                    }
+        // .map() на .ifPresent()
+        optionalEmployee.ifPresent(employee -> {
+            employee.setFirstName(updatedEmployee.getFirstName());
+            employee.setLastName(updatedEmployee.getLastName());
 
-                    employee.setPositions(updatedEmployee.getPositions());
-                    return employeeRepository.save(employee);
-                })
-                .orElse(null);
+            if (employee.getContactInfo() != null && updatedEmployee.getContactInfo() != null) {
+                employee.getContactInfo().setPhone(updatedEmployee.getContactInfo().getPhone());
+                employee.getContactInfo().setEmail(updatedEmployee.getContactInfo().getEmail());
+                employee.getContactInfo().setAddress(updatedEmployee.getContactInfo().getAddress());
+            } else if (updatedEmployee.getContactInfo() != null) {
+                employee.setContactInfo(updatedEmployee.getContactInfo());
+            }
+
+            employee.setPositions(updatedEmployee.getPositions());
+            employeeRepository.save(employee);
+        });
+
+        return optionalEmployee.orElse(null);
     }
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
-        employeeRepository.findById(id).ifPresent(employee -> {
+        Optional<Employee> optionalEmployee = employeeRepository.findById(id);
+        if (optionalEmployee.isPresent()) {
+            Employee employee = optionalEmployee.get();
             employee.getPositions().clear();
             employeeRepository.save(employee);
 
@@ -74,9 +79,9 @@ public class EmployeeController {
                     chequeRepository.deleteById(cheque.getId());
                 }
             }
-            
-            employeeRepository.deleteById(id);
-        });
+
+            employeeRepository.delete(employee);
+        }
     }
 
     @PostMapping("/{employeeId}/addPosition/{positionId}")
