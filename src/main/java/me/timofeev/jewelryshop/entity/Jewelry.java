@@ -15,6 +15,9 @@ public class Jewelry {
     @ManyToOne
     private Material material;
 
+    @OneToOne(mappedBy = "jewelry")
+    private Cheque cheque;
+
     private Integer assay;
     private BigDecimal price;
     private String description;
