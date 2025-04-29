@@ -1,50 +1,42 @@
 package me.timofeev.jewelryshop.controller;
 
 import me.timofeev.jewelryshop.entity.Position;
-import me.timofeev.jewelryshop.repo.PositionRepository;
+import me.timofeev.jewelryshop.service.PositionService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/positions")
 public class PositionController {
-    private final PositionRepository positionRepository;
+    private final PositionService positionService;
 
-    public PositionController(PositionRepository positionRepository) {
-        this.positionRepository = positionRepository;
+    public PositionController(PositionService positionService) {
+        this.positionService = positionService;
     }
 
     @GetMapping
     public List<Position> getAll() {
-        return positionRepository.findAll();
+        return positionService.getAll();
     }
 
     @GetMapping("/{id}")
     public Position getById(@PathVariable Long id) {
-        return positionRepository.findById(id).orElse(null);
+        return positionService.getById(id).orElse(null);
     }
 
     @PostMapping
     public Position create(@RequestBody Position position) {
-        return positionRepository.save(position);
+        return positionService.create(position);
     }
 
     @PutMapping("/{id}")
     public Position update(@PathVariable Long id, @RequestBody Position updatedPosition) {
-        Optional<Position> optionalPosition = positionRepository.findById(id);
-
-        optionalPosition.ifPresent(position -> {
-            position.setName(updatedPosition.getName());
-            positionRepository.save(position);
-        });
-
-        return optionalPosition.orElse(null);
+        return positionService.update(id, updatedPosition);
     }
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
-        positionRepository.deleteById(id);
+        positionService.delete(id);
     }
 }

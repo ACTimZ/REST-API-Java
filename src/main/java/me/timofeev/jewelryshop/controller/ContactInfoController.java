@@ -1,52 +1,42 @@
 package me.timofeev.jewelryshop.controller;
 
 import me.timofeev.jewelryshop.entity.ContactInfo;
-import me.timofeev.jewelryshop.repo.ContactInfoRepository;
+import me.timofeev.jewelryshop.service.ContactInfoService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/contactinfo")
 public class ContactInfoController {
-    private final ContactInfoRepository contactInfoRepository;
+    private final ContactInfoService contactInfoService;
 
-    public ContactInfoController(ContactInfoRepository contactInfoRepository) {
-        this.contactInfoRepository = contactInfoRepository;
+    public ContactInfoController(ContactInfoService contactInfoService) {
+        this.contactInfoService = contactInfoService;
     }
 
     @GetMapping
     public List<ContactInfo> getAll() {
-        return contactInfoRepository.findAll();
+        return contactInfoService.getAll();
     }
 
     @GetMapping("/{id}")
     public ContactInfo getById(@PathVariable Long id) {
-        return contactInfoRepository.findById(id).orElse(null);
+        return contactInfoService.getById(id).orElse(null);
     }
 
     @PostMapping
     public ContactInfo create(@RequestBody ContactInfo contactInfo) {
-        return contactInfoRepository.save(contactInfo);
+        return contactInfoService.create(contactInfo);
     }
 
     @PutMapping("/{id}")
     public ContactInfo update(@PathVariable Long id, @RequestBody ContactInfo updatedContactInfo) {
-        Optional<ContactInfo> optionalContactInfo = contactInfoRepository.findById(id);
-
-        optionalContactInfo.ifPresent(contactInfo -> {
-            contactInfo.setPhone(updatedContactInfo.getPhone());
-            contactInfo.setEmail(updatedContactInfo.getEmail());
-            contactInfo.setAddress(updatedContactInfo.getAddress());
-            contactInfoRepository.save(contactInfo);
-        });
-
-        return optionalContactInfo.orElse(null);
+        return contactInfoService.update(id, updatedContactInfo);
     }
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
-        contactInfoRepository.deleteById(id);
+        contactInfoService.delete(id);
     }
 }

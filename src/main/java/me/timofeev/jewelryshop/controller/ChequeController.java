@@ -1,53 +1,42 @@
 package me.timofeev.jewelryshop.controller;
 
 import me.timofeev.jewelryshop.entity.Cheque;
-import me.timofeev.jewelryshop.repo.ChequeRepository;
+import me.timofeev.jewelryshop.service.ChequeService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/cheques")
 public class ChequeController {
-    private final ChequeRepository chequeRepository;
+    private final ChequeService chequeService;
 
-    public ChequeController(ChequeRepository chequeRepository) {
-        this.chequeRepository = chequeRepository;
+    public ChequeController(ChequeService chequeService) {
+        this.chequeService = chequeService;
     }
 
     @GetMapping
     public List<Cheque> getAll() {
-        return chequeRepository.findAll();
+        return chequeService.getAll();
     }
 
     @GetMapping("/{id}")
     public Cheque getById(@PathVariable Long id) {
-        return chequeRepository.findById(id).orElse(null);
+        return chequeService.getById(id).orElse(null);
     }
 
     @PostMapping
     public Cheque create(@RequestBody Cheque cheque) {
-        return chequeRepository.save(cheque);
+        return chequeService.create(cheque);
     }
 
     @PutMapping("/{id}")
     public Cheque update(@PathVariable Long id, @RequestBody Cheque updatedCheque) {
-        Optional<Cheque> optionalCheque = chequeRepository.findById(id);
-
-        optionalCheque.ifPresent(cheque -> {
-            cheque.setEmployee(updatedCheque.getEmployee());
-            cheque.setClient(updatedCheque.getClient());
-            cheque.setJewelry(updatedCheque.getJewelry());
-            cheque.setPurchaseDate(updatedCheque.getPurchaseDate());
-            chequeRepository.save(cheque);
-        });
-
-        return optionalCheque.orElse(null);
+        return chequeService.update(id, updatedCheque);
     }
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
-        chequeRepository.deleteById(id);
+        chequeService.delete(id);
     }
 }
