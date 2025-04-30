@@ -18,9 +18,6 @@ public class Jewelry {
     @ManyToOne
     private Material material;
 
-    @ManyToMany(mappedBy = "jewelryList")
-    private List<Cheque> cheques = new ArrayList<>();
-
     private Integer assay;
     private BigDecimal price;
     private String description;

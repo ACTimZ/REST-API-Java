@@ -3,8 +3,8 @@ package me.timofeev.jewelryshop.entity;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 public class Cheque {
@@ -18,24 +18,18 @@ public class Cheque {
     @ManyToOne
     private Client client;
 
-    @ManyToMany
-    @JoinTable(name = "cheque_jewelry", joinColumns = @JoinColumn(name = "cheque_id"), inverseJoinColumns = @JoinColumn(name = "jewelry_id"))
-    private List<Jewelry> jewelryList = new ArrayList<>();
+    @OneToMany(mappedBy = "cheque", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<ChequeItem> items = new ArrayList<>();
 
     private LocalDateTime purchaseDate;
 
-    public Cheque() {
-    }
-
-    public Cheque(Employee employee, Client client, List<Jewelry> jewelryList, LocalDateTime purchaseDate) {
-        this.employee = employee;
-        this.client = client;
-        this.jewelryList = jewelryList;
-        this.purchaseDate = purchaseDate;
-    }
-
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Employee getEmployee() {
@@ -54,12 +48,12 @@ public class Cheque {
         this.client = client;
     }
 
-    public List<Jewelry> getJewelry() {
-        return jewelryList;
+    public List<ChequeItem> getItems() {
+        return items;
     }
 
-    public void setJewelry(List<Jewelry> jewelryList) {
-        this.jewelryList = jewelryList;
+    public void setItems(List<ChequeItem> items) {
+        this.items = items;
     }
 
     public LocalDateTime getPurchaseDate() {

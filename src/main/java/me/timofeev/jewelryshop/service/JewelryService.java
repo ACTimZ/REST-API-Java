@@ -50,10 +50,8 @@ public class JewelryService {
         if (optionalJewelry.isPresent()) {
             List<Cheque> cheques = chequeRepository.findAll();
             for (Cheque cheque : cheques) {
-                List<Jewelry> jewelryList = cheque.getJewelry();
-                if (jewelryList.removeIf(jewelry -> jewelry.getId().equals(id))) {
-                    chequeRepository.save(cheque);
-                }
+                cheque.getItems().removeIf(item -> item.getJewelry().getId().equals(id));
+                chequeRepository.save(cheque);
             }
             jewelryRepository.delete(optionalJewelry.get());
         }

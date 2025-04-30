@@ -1,5 +1,6 @@
 package me.timofeev.jewelryshop.controller;
 
+import me.timofeev.jewelryshop.dto.ChequeCreateDTO;
 import me.timofeev.jewelryshop.entity.Cheque;
 import me.timofeev.jewelryshop.service.ChequeService;
 import org.springframework.web.bind.annotation.*;
@@ -26,8 +27,8 @@ public class ChequeController {
     }
 
     @PostMapping
-    public Cheque create(@RequestBody Cheque cheque) {
-        return chequeService.create(cheque);
+    public Cheque create(@RequestBody ChequeCreateDTO chequeCreateDTO) {
+        return chequeService.create(chequeCreateDTO);
     }
 
     @PutMapping("/{id}")
