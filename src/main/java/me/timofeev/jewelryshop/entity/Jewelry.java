@@ -2,6 +2,9 @@ package me.timofeev.jewelryshop.entity;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+
+import java.util.List;
 
 @Entity
 public class Jewelry {
@@ -15,8 +18,8 @@ public class Jewelry {
     @ManyToOne
     private Material material;
 
-    @OneToOne(mappedBy = "jewelry")
-    private Cheque cheque;
+    @ManyToMany(mappedBy = "jewelryList")
+    private List<Cheque> cheques = new ArrayList<>();
 
     private Integer assay;
     private BigDecimal price;
